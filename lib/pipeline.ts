@@ -19,9 +19,10 @@ export interface PipelineOptions {
 
 // Presupuesto de caracteres del digest. Calibrado para caber bajo el límite de
 // 10k tokens de entrada/min de la org (~3.5 chars/token + overhead del prompt).
-const DIGEST_BUDGET = 22_000;
-// Pausa entre repos para no superar el límite por minuto.
-const REPO_DELAY_MS = 65_000;
+const DIGEST_BUDGET = 10_000;
+// Pausa entre repos para no superar el límite por minuto (Tier 1: 10k tokens/min).
+// Con digest ~10k chars (~3k tokens) caben ~2 análisis por minuto.
+const REPO_DELAY_MS = 32_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
