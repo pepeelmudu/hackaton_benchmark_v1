@@ -11,7 +11,7 @@ function dimsAll(score: number): Record<DimensionKey, DimensionScore> {
     "tool_use", "agency_loop", "planning", "memory", "integration", "robustness",
   ];
   return Object.fromEntries(
-    keys.map((k) => [k, { score, justification: "" }]),
+    keys.map((k) => [k, { score, justification: { en: "", es: "" } }]),
   ) as Record<DimensionKey, DimensionScore>;
 }
 
@@ -25,6 +25,6 @@ test("todo 0 => global 0", () => {
 
 test("ponderación: solo tool_use a 10 => 2.5", () => {
   const dims = dimsAll(0);
-  dims.tool_use = { score: 10, justification: "" };
+  dims.tool_use = { score: 10, justification: { en: "", es: "" } };
   expect(computeOverall(dims)).toBe(2.5);
 });

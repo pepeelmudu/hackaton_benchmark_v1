@@ -20,9 +20,9 @@ export interface PipelineOptions {
 // Presupuesto de caracteres del digest. Calibrado para caber bajo el límite de
 // 10k tokens de entrada/min de la org (~3.5 chars/token + overhead del prompt).
 const DIGEST_BUDGET = 10_000;
-// Pausa entre repos para no superar el límite por minuto (Tier 1: 10k tokens/min).
-// Con digest ~10k chars (~3k tokens) caben ~2 análisis por minuto.
-const REPO_DELAY_MS = 32_000;
+// Pausa entre repos. 45s porque el texto bilingüe gasta más tokens de salida
+// (límite 4k/min en Tier 1); el reintento ante 429 cubre los picos.
+const REPO_DELAY_MS = 45_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -64,7 +64,7 @@ export async function runPipeline(db: DB, opts: PipelineOptions = {}): Promise<v
         ts: Date.now(),
         commit_sha: commitSha,
         overall: result.overall,
-        verdict: result.verdict,
+        verdict: result.verdict.en, // resumen para la columna; el payload lleva en+es
         is_disguised_llm: result.is_disguised_llm,
         payload: result,
       });

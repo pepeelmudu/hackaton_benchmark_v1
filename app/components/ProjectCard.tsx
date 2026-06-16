@@ -4,10 +4,10 @@ import type { LeaderboardRow } from "@/lib/types";
 import { WEIGHTS } from "@/lib/rubric";
 import { RadarScores } from "./RadarScores";
 import { gauge, scoreColor } from "./format";
-import { useLang, DIM_KEYS } from "./i18n";
+import { useLang, DIM_KEYS, loc } from "./i18n";
 
 export function ProjectCard({ row }: { row: LeaderboardRow }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const r = row.payload;
   if (!r) {
     return (
@@ -41,7 +41,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
         style={{ color: r.is_disguised_llm ? "var(--danger)" : "var(--amber)" }}
       >
         {(r.is_disguised_llm ? "⚠ " : "» ") + t.verdict + ": "}
-        <span className="glow">{r.verdict}</span>
+        <span className="glow">{loc(r.verdict, lang)}</span>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[260px_1fr]">
@@ -74,7 +74,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
                   [{gauge(d.score)}]
                 </div>
                 <div className="mt-1 text-xs leading-relaxed text-[var(--phosphor)] opacity-80">
-                  {d.justification}
+                  {loc(d.justification, lang)}
                 </div>
               </div>
             );
@@ -91,7 +91,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
             {r.highlights.length === 0 && <li className="text-[var(--muted)]">—</li>}
             {r.highlights.map((h, i) => (
               <li key={i} className="text-[var(--phosphor)]">
-                <span className="text-[var(--phosphor-bright)]">+</span> {h}
+                <span className="text-[var(--phosphor-bright)]">+</span> {loc(h, lang)}
               </li>
             ))}
           </ul>
@@ -104,7 +104,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
             {r.red_flags.length === 0 && <li className="text-[var(--muted)]">—</li>}
             {r.red_flags.map((f, i) => (
               <li key={i} className="glow-danger">
-                <span>-</span> {f}
+                <span>-</span> {loc(f, lang)}
               </li>
             ))}
           </ul>

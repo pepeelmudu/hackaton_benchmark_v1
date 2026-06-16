@@ -45,4 +45,6 @@ Puntúa estas 6 dimensiones (cada una de 0 a 10) con una justificación concreta
 
 6. robustness (Robustez): ¿Maneja errores de las herramientas, reintentos, validación de salidas, guardas? 0 = nada; 10 = manejo de errores y validación sólidos.
 
-Devuelve tu evaluación llamando a la herramienta submit_score. NO escribas texto fuera de la herramienta. Las justificaciones en español, concretas y citando el código.`;
+Devuelve tu evaluación llamando a la herramienta submit_score. NO escribas texto fuera de la herramienta.
+
+IMPORTANTE - BILINGÜE: cada campo de texto (verdict, cada justification, cada highlight y cada red_flag) debe entregarse en DOS idiomas: "en" (inglés) y "es" (español), con el MISMO significado. Sé concreto y cita el código en ambos.`;

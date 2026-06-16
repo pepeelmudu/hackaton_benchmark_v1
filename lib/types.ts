@@ -6,18 +6,24 @@ export type DimensionKey =
   | "integration"
   | "robustness";
 
+/** Texto en los dos idiomas soportados. */
+export interface Localized {
+  en: string;
+  es: string;
+}
+
 export interface DimensionScore {
   score: number; // 0-10
-  justification: string;
+  justification: Localized;
 }
 
 export interface AnalysisResult {
   overall: number; // 0-10, media ponderada
-  verdict: string;
+  verdict: Localized;
   is_disguised_llm: boolean;
   dimensions: Record<DimensionKey, DimensionScore>;
-  highlights: string[];
-  red_flags: string[];
+  highlights: Localized[];
+  red_flags: Localized[];
 }
 
 export interface Project {

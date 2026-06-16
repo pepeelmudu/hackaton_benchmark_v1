@@ -145,6 +145,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export const useLang = () => useContext(LanguageContext);
 
+/**
+ * Devuelve el texto en el idioma activo. Tolera datos antiguos que sean
+ * un simple string (antes de que el análisis fuera bilingüe).
+ */
+export function loc(
+  value: string | { en?: string; es?: string } | null | undefined,
+  lang: Lang,
+): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[lang] ?? value.en ?? value.es ?? "";
+}
+
 /** Botón pequeño para cambiar de idioma. Muestra el idioma al que cambiarás. */
 export function LangToggle() {
   const { lang, setLang } = useLang();

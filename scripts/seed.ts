@@ -8,18 +8,29 @@ const KEYS: DimensionKey[] = [
   "tool_use", "agency_loop", "planning", "memory", "integration", "robustness",
 ];
 
+const L = (en: string, es: string) => ({ en, es });
+
 function mkResult(base: number[], disguised: boolean): AnalysisResult {
   const dims = {} as Record<DimensionKey, DimensionScore>;
   KEYS.forEach((k, i) => {
-    dims[k] = { score: base[i], justification: `Evidencia ejemplo para ${k}: nivel ${base[i]}/10.` };
+    dims[k] = {
+      score: base[i],
+      justification: L(`Example evidence for ${k}: level ${base[i]}/10.`, `Evidencia ejemplo para ${k}: nivel ${base[i]}/10.`),
+    };
   });
   return {
     overall: computeOverall(dims),
-    verdict: disguised ? "LLM disfrazado: declara tools pero no las ejecuta" : "Agente real con loop y tools",
+    verdict: disguised
+      ? L("Disguised LLM: declares tools but never runs them", "LLM disfrazado: declara tools pero no las ejecuta")
+      : L("Real agent with loop and tools", "Agente real con loop y tools"),
     is_disguised_llm: disguised,
     dimensions: dims,
-    highlights: disguised ? ["Buen prompt engineering"] : ["Loop de reintentos sólido", "3 tools reales en uso"],
-    red_flags: disguised ? ["Las tools nunca se invocan", "Flujo lineal fijo"] : ["Sin validación de salidas"],
+    highlights: disguised
+      ? [L("Good prompt engineering", "Buen prompt engineering")]
+      : [L("Solid retry loop", "Loop de reintentos sólido"), L("3 real tools in use", "3 tools reales en uso")],
+    red_flags: disguised
+      ? [L("Tools are never invoked", "Las tools nunca se invocan"), L("Fixed linear flow", "Flujo lineal fijo")]
+      : [L("No output validation", "Sin validación de salidas")],
   };
 }
 
@@ -41,7 +52,7 @@ for (const s of SEED) {
       ts: now - (s.curve.length - 1 - i) * 90 * 60 * 1000, // cada 90 min hacia atrás
       commit_sha: `demo${i}${pid}abc`,
       overall: result.overall,
-      verdict: result.verdict,
+      verdict: result.verdict.en,
       is_disguised_llm: result.is_disguised_llm,
       payload: result,
     });

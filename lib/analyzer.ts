@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { RUBRIC_PROMPT, computeOverall } from "./rubric";
-import type { AnalysisResult, DimensionKey, DimensionScore } from "./types";
+import type { AnalysisResult, DimensionKey, DimensionScore, Localized } from "./types";
 
 const MODEL = "claude-sonnet-4-6";
 const MAX_ATTEMPTS = 4;
@@ -9,11 +9,21 @@ const DIMENSION_KEYS: DimensionKey[] = [
   "tool_use", "agency_loop", "planning", "memory", "integration", "robustness",
 ];
 
+const localizedProp = {
+  type: "object",
+  description: "Texto en inglés (en) y español (es), mismo significado.",
+  properties: {
+    en: { type: "string" },
+    es: { type: "string" },
+  },
+  required: ["en", "es"],
+} as const;
+
 const dimensionProp = {
   type: "object",
   properties: {
     score: { type: "integer", minimum: 0, maximum: 10 },
-    justification: { type: "string", description: "Justificación concreta citando el código." },
+    justification: localizedProp,
   },
   required: ["score", "justification"],
 } as const;
@@ -24,7 +34,7 @@ const SCORE_TOOL: Anthropic.Tool = {
   input_schema: {
     type: "object",
     properties: {
-      verdict: { type: "string", description: "Veredicto de una frase." },
+      verdict: { ...localizedProp, description: "Veredicto de una frase (en/es)." },
       is_disguised_llm: {
         type: "boolean",
         description: "true si en realidad es un LLM disfrazado de agente (no ejecuta tools reales / sin loop).",
@@ -41,19 +51,27 @@ const SCORE_TOOL: Anthropic.Tool = {
         },
         required: DIMENSION_KEYS,
       },
-      highlights: { type: "array", items: { type: "string" } },
-      red_flags: { type: "array", items: { type: "string" } },
+      highlights: { type: "array", items: localizedProp },
+      red_flags: { type: "array", items: localizedProp },
     },
     required: ["verdict", "is_disguised_llm", "dimensions", "highlights", "red_flags"],
   },
 };
+
+function toLocalized(v: any): Localized {
+  if (v && typeof v === "object") {
+    return { en: String(v.en ?? v.es ?? ""), es: String(v.es ?? v.en ?? "") };
+  }
+  const s = String(v ?? "");
+  return { en: s, es: s };
+}
 
 function clampDims(raw: any): Record<DimensionKey, DimensionScore> {
   const dims = {} as Record<DimensionKey, DimensionScore>;
   for (const k of DIMENSION_KEYS) {
     const d = raw?.[k] ?? {};
     const score = Math.max(0, Math.min(10, Number(d.score) || 0));
-    dims[k] = { score, justification: String(d.justification ?? "") };
+    dims[k] = { score, justification: toLocalized(d.justification) };
   }
   return dims;
 }
@@ -67,7 +85,7 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
     try {
       const res = await client.messages.create({
         model: MODEL,
-        max_tokens: 1800,
+        max_tokens: 3200, // bilingüe: el texto va duplicado (en + es)
         temperature: 0, // máxima consistencia: misma versión de código -> misma nota
         tools: [SCORE_TOOL],
         tool_choice: { type: "tool", name: "submit_score" },
@@ -90,11 +108,11 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
 
       return {
         overall,
-        verdict: String(input.verdict ?? ""),
+        verdict: toLocalized(input.verdict),
         is_disguised_llm: !!input.is_disguised_llm,
         dimensions,
-        highlights: Array.isArray(input.highlights) ? input.highlights.map(String) : [],
-        red_flags: Array.isArray(input.red_flags) ? input.red_flags.map(String) : [],
+        highlights: Array.isArray(input.highlights) ? input.highlights.map(toLocalized) : [],
+        red_flags: Array.isArray(input.red_flags) ? input.red_flags.map(toLocalized) : [],
       };
     } catch (err: any) {
       lastErr = err;
