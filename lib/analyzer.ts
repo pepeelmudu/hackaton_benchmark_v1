@@ -68,6 +68,7 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
       const res = await client.messages.create({
         model: MODEL,
         max_tokens: 2500,
+        temperature: 0, // máxima consistencia: misma versión de código -> misma nota
         tools: [SCORE_TOOL],
         tool_choice: { type: "tool", name: "submit_score" },
         messages: [
