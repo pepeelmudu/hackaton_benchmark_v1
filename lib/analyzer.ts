@@ -2,8 +2,39 @@ import Anthropic from "@anthropic-ai/sdk";
 import { RUBRIC_PROMPT, computeOverall } from "./rubric";
 import type { AnalysisResult, DimensionKey, DimensionScore, Localized } from "./types";
 
-const MODEL = "claude-sonnet-4-6";
+const ANTHROPIC_MODEL = "claude-sonnet-4-6";
+const XAI_MODEL = process.env.XAI_MODEL || "grok-4";
+const XAI_BASE_URL = "https://api.x.ai";
 const MAX_ATTEMPTS = 4;
+
+/**
+ * Elige el proveedor del LLM. Prioridad: Anthropic primero, luego xAI (Grok).
+ * xAI es compatible con el SDK de Anthropic, así que solo cambia baseURL/apiKey/modelo.
+ */
+function makeClient(): { client: Anthropic; model: string; provider: string } {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  const xaiKey = process.env.XAI_API_KEY;
+
+  if (anthropicKey) {
+    return {
+      client: new Anthropic({ apiKey: anthropicKey }),
+      model: ANTHROPIC_MODEL,
+      provider: "anthropic",
+    };
+  }
+
+  if (xaiKey) {
+    return {
+      client: new Anthropic({ apiKey: xaiKey, baseURL: XAI_BASE_URL }),
+      model: XAI_MODEL,
+      provider: "xai",
+    };
+  }
+
+  throw new Error(
+    "Falta ANTHROPIC_API_KEY o XAI_API_KEY en el entorno (.env.local)",
+  );
+}
 
 const DIMENSION_KEYS: DimensionKey[] = [
   "tool_use", "agency_loop", "planning", "memory", "integration", "robustness",
@@ -78,13 +109,17 @@ function clampDims(raw: any): Record<DimensionKey, DimensionScore> {
 
 /** Analiza el digest de un repo con Claude y devuelve el resultado validado. */
 export async function analyze(digest: string, projectName: string): Promise<AnalysisResult> {
-  const client = new Anthropic();
+  const { client, model, provider } = makeClient();
   let lastErr: unknown;
+
+  if (process.env.BENCHMARK_VERBOSE) {
+    console.log(`[analyzer] proveedor=${provider} modelo=${model}`);
+  }
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       const res = await client.messages.create({
-        model: MODEL,
+        model,
         max_tokens: 3200, // bilingüe: el texto va duplicado (en + es)
         temperature: 0, // máxima consistencia: misma versión de código -> misma nota
         tools: [SCORE_TOOL],
