@@ -1,0 +1,25 @@
+# Render Blueprint. Conecta este repo en Render -> "New +" -> "Blueprint" y
+# detecta este archivo. Luego rellena los secretos (sync:false) en el dashboard.
+services:
+  - type: web
+    name: agentic-benchmark
+    runtime: node
+    plan: starter # necesario para tener disco persistente (~$7/mes)
+    buildCommand: npm install && npm run build
+    startCommand: node scripts/start-prod.mjs
+    healthCheckPath: /api/leaderboard
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
+      - key: DATA_DIR
+        value: /var/data
+      # Secretos: se introducen en el panel de Render, NO se commitean.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+    disk:
+      name: benchmark-data
+      mountPath: /var/data
+      sizeGB: 1

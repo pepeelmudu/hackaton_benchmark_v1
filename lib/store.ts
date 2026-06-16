@@ -2,10 +2,11 @@ import Database from "better-sqlite3";
 import * as fs from "fs";
 import * as path from "path";
 import type { Project, Snapshot, LeaderboardRow, AnalysisResult } from "./types";
+import { DB_PATH } from "./paths";
 
 export type DB = Database.Database;
 
-const DEFAULT_PATH = "data/benchmark.sqlite";
+const DEFAULT_PATH = DB_PATH;
 
 export function openDb(dbPath: string = DEFAULT_PATH): DB {
   if (dbPath !== ":memory:") {

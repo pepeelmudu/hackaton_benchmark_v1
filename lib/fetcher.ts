@@ -2,6 +2,7 @@ import { execFileSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import type { Project } from "./types";
+import { WORKDIR } from "./paths";
 
 export interface FetchResult {
   dir: string;
@@ -33,7 +34,7 @@ function authUrl(url: string): string {
  * Devuelve la ruta local y el SHA del último commit.
  * Lanza un Error con mensaje claro si el repo no es accesible.
  */
-export function fetchRepo(project: Project, workdir = "workdir"): FetchResult {
+export function fetchRepo(project: Project, workdir = WORKDIR): FetchResult {
   fs.mkdirSync(workdir, { recursive: true });
   const dest = path.join(workdir, `${project.owner}__${project.name}`);
   const url = authUrl(project.url);
