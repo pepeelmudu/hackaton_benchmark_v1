@@ -7,4 +7,5 @@ https://github.com/pepeelmudu/rol_hackaton_v1 - Lucas y Al
 https://github.com/elevenyellow/Resound - Dani y Berto
 https://github.com/0xAlik/agency - Al y Lucas
 https://github.com/charliereyes/household-purchasing-agent - Pei y Charlie
-https://github.com/Josema/pods
+https://github.com/Josema/pods - Enzo y Vaca
+https://github.com/zingersHQ/zingers - Al y Lucas
