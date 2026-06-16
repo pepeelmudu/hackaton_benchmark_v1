@@ -17,6 +17,14 @@ export interface PipelineOptions {
   force?: boolean; // re-analiza aunque no haya commits nuevos
 }
 
+// Presupuesto de caracteres del digest. Calibrado para caber bajo el límite de
+// 10k tokens de entrada/min de la org (~3.5 chars/token + overhead del prompt).
+const DIGEST_BUDGET = 22_000;
+// Pausa entre repos para no superar el límite por minuto.
+const REPO_DELAY_MS = 65_000;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
  * Ejecuta el ciclo completo para todos los repos de repos.txt.
  * Un fallo en un repo no detiene el resto (se guarda un snapshot con error).
@@ -26,6 +34,7 @@ export async function runPipeline(db: DB, opts: PipelineOptions = {}): Promise<v
   const projects = parseRepos(text);
   console.log(`[pipeline] ${projects.length} proyectos a analizar`);
 
+  let analyzed = 0;
   for (const p of projects) {
     const projectId = upsertProject(db, p);
     const label = `${p.owner}/${p.name} (${p.team})`;
@@ -38,8 +47,15 @@ export async function runPipeline(db: DB, opts: PipelineOptions = {}): Promise<v
         continue;
       }
 
+      // Pausa entre análisis para respetar el límite por minuto de la API.
+      if (analyzed > 0) {
+        console.log(`[pipeline] esperando ${REPO_DELAY_MS / 1000}s (rate limit)…`);
+        await sleep(REPO_DELAY_MS);
+      }
+      analyzed++;
+
       console.log(`[pipeline] pack + analyze ${label}`);
-      const digest = packRepo(dir);
+      const digest = packRepo(dir, DIGEST_BUDGET);
       const result = await analyze(digest, `${p.owner}/${p.name}`);
 
       insertSnapshot(db, {

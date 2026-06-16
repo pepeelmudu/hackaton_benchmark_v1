@@ -3,6 +3,7 @@ import { RUBRIC_PROMPT, computeOverall } from "./rubric";
 import type { AnalysisResult, DimensionKey, DimensionScore } from "./types";
 
 const MODEL = "claude-sonnet-4-6";
+const MAX_ATTEMPTS = 4;
 
 const DIMENSION_KEYS: DimensionKey[] = [
   "tool_use", "agency_loop", "planning", "memory", "integration", "robustness",
@@ -62,7 +63,7 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
   const client = new Anthropic();
   let lastErr: unknown;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       const res = await client.messages.create({
         model: MODEL,
@@ -94,9 +95,17 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
         highlights: Array.isArray(input.highlights) ? input.highlights.map(String) : [],
         red_flags: Array.isArray(input.red_flags) ? input.red_flags.map(String) : [],
       };
-    } catch (err) {
+    } catch (err: any) {
       lastErr = err;
-      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      const is429 = err?.status === 429 || /rate_limit/.test(String(err?.message));
+      // El límite es por minuto: ante 429 esperamos a que se renueve la cuota.
+      const waitMs = is429 ? 65_000 : 1500 * (attempt + 1);
+      if (attempt < MAX_ATTEMPTS - 1) {
+        console.warn(
+          `[analyzer] intento ${attempt + 1} falló (${is429 ? "rate limit" : "error"}), espero ${Math.round(waitMs / 1000)}s`,
+        );
+        await new Promise((r) => setTimeout(r, waitMs));
+      }
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error("Fallo al analizar");
