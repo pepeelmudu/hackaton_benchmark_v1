@@ -120,7 +120,7 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
     try {
       const res = await client.messages.create({
         model,
-        max_tokens: 3200, // bilingüe: el texto va duplicado (en + es)
+        max_tokens: 5000, // bilingüe (en+es) x 6 dims + verdict + listas: necesita holgura
         temperature: 0, // máxima consistencia: misma versión de código -> misma nota
         tools: [SCORE_TOOL],
         tool_choice: { type: "tool", name: "submit_score" },
@@ -132,6 +132,12 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
         ],
       });
 
+      // Guarda anti-truncado: si la respuesta se cortó por longitud, el JSON
+      // de la tool puede venir incompleto (notas a 0). Mejor reintentar.
+      if (res.stop_reason === "max_tokens") {
+        throw new Error("respuesta truncada (max_tokens), reintentando");
+      }
+
       const toolUse = res.content.find((b) => b.type === "tool_use") as
         | Anthropic.ToolUseBlock
         | undefined;
@@ -139,6 +145,11 @@ export async function analyze(digest: string, projectName: string): Promise<Anal
 
       const input = toolUse.input as any;
       const dimensions = clampDims(input.dimensions);
+      // Sanidad: veredicto positivo pero todas las dimensiones a 0 = datos corruptos.
+      const allZero = Object.values(dimensions).every((d) => d.score === 0);
+      if (allZero && !input.is_disguised_llm) {
+        throw new Error("dimensiones todas a 0 con veredicto no-disfrazado (datos corruptos)");
+      }
       const overall = computeOverall(dimensions); // calculado por nosotros, no por el modelo
 
       return {
