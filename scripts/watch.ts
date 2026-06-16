@@ -21,6 +21,6 @@ async function tick() {
   }
 }
 
-console.log("[watch] arrancando. Análisis cada 15 min. Ctrl+C para parar.");
+console.log("[watch] arrancando. Revisa commits nuevos cada 30 min. Ctrl+C para parar.");
 tick(); // pasada inmediata al arrancar
-cron.schedule("*/15 * * * *", tick);
+cron.schedule("*/30 * * * *", tick);
