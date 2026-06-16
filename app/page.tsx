@@ -6,6 +6,7 @@ import { Leaderboard } from "./components/Leaderboard";
 import { ProjectCard } from "./components/ProjectCard";
 import { EvolutionChart, type Series } from "./components/EvolutionChart";
 import { ReanalyzeButton } from "./components/ReanalyzeButton";
+import { CriteriaButton } from "./components/CriteriaModal";
 import { fmtTime } from "./components/format";
 import { LanguageProvider, LangToggle, useLang } from "./components/i18n";
 
@@ -71,7 +72,8 @@ function Dashboard() {
               {t.lastUpdate}:{" "}
               <span className="text-[var(--phosphor)]">{fmtTime(lastUpdate)}</span>
             </div>
-            <div className="mt-2">
+            <div className="mt-2 flex justify-end gap-2">
+              <CriteriaButton />
               <ReanalyzeButton onDone={load} />
             </div>
           </div>

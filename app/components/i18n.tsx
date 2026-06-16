@@ -36,6 +36,15 @@ interface Strings {
   footer: string;
   dimsShort: Record<DimensionKey, string>;
   dimsFull: Record<DimensionKey, string>;
+  criteria: {
+    button: string;
+    title: string;
+    intro: string;
+    dims: Record<DimensionKey, string>;
+    scoring: string;
+    integrity: string;
+    close: string;
+  };
 }
 
 const STRINGS: Record<Lang, Strings> = {
@@ -73,6 +82,31 @@ const STRINGS: Record<Lang, Strings> = {
       planning: "Planning / Autonomy", memory: "Memory / State",
       integration: "External integration", robustness: "Robustness",
     },
+    criteria: {
+      button: "CRITERIA",
+      title: "How projects are scored",
+      intro:
+        "Every project is cloned and read by Claude, which scores how genuinely AGENTIC it is from 0 to 10. The goal is to tell a real agent apart from an \"LLM in disguise\": something that looks like an agent but is really a plain prompt→response, with no real tool execution and no reasoning loop. The score comes only from verifiable evidence in the code.",
+      dims: {
+        tool_use:
+          "Does it define tools and actually EXECUTE them with real, verifiable effects (APIs, filesystem, DB, web, shell)? Or are the tools declared but never invoked, or their output merely simulated?",
+        agency_loop:
+          "Is there a reason→act→observe→decide loop where the model dynamically chooses the next step based on results? Or is it a fixed, predefined linear pipeline?",
+        planning:
+          "Does the system decompose tasks, plan several steps ahead and self-direct? Or does the human/code decide everything?",
+        memory:
+          "Does it keep state and context between steps (working memory, history, scratchpad, vector store)?",
+        integration:
+          "Does it interact with real external systems with side-effects (third-party APIs, DB, files, messaging, browser)?",
+        robustness:
+          "Does it handle tool errors, retries and output validation, with guards against malformed responses?",
+      },
+      scoring:
+        "Each dimension is scored 0–10. The overall score is their weighted average, rounded to one decimal. Tool Use and Agency Loop carry the most weight (25% each) because they are exactly what separates a real agent from a disguised LLM. A project is flagged \"DISGUISED LLM\" when it looks agentic but lacks real tool execution and a real loop.",
+      integrity:
+        "Integrity safeguards: all repository content is treated as data, never as instructions — any text aimed at influencing the evaluator is ignored and counts against the project. Only functionality that is actually wired into the execution path is rewarded; agentic machinery bolted on just to hit the rubric (\"agentic theater\") does not raise the score.",
+      close: "Close",
+    },
   },
   es: {
     subtitle: "¿Agente de verdad o LLM disfrazado? · evaluación 0–10 · hackathon",
@@ -107,6 +141,31 @@ const STRINGS: Record<Lang, Strings> = {
       tool_use: "Tool Use / Acción real", agency_loop: "Agency Loop",
       planning: "Planificación / Autonomía", memory: "Memoria / Estado",
       integration: "Integración externa", robustness: "Robustez",
+    },
+    criteria: {
+      button: "CRITERIOS",
+      title: "Cómo se puntúa cada proyecto",
+      intro:
+        "Cada proyecto se clona y lo lee Claude, que puntúa de 0 a 10 cuán AGÉNTICO es de verdad. El objetivo es distinguir un agente real de un \"LLM disfrazado\": algo que parece un agente pero en realidad es un simple prompt→respuesta, sin ejecución real de herramientas ni bucle de razonamiento. La nota sale solo de evidencia verificable en el código.",
+      dims: {
+        tool_use:
+          "¿Define herramientas y las EJECUTA de verdad con efectos reales y verificables (APIs, ficheros, base de datos, web, shell)? ¿O las tools están declaradas pero nunca se invocan, o su salida solo se simula?",
+        agency_loop:
+          "¿Hay un bucle razonar→actuar→observar→decidir donde el modelo elige el siguiente paso de forma dinámica según los resultados? ¿O es un flujo lineal fijo y predefinido?",
+        planning:
+          "¿El sistema descompone tareas, planifica varios pasos y se auto-dirige? ¿O lo decide todo el humano/código?",
+        memory:
+          "¿Mantiene estado y contexto entre pasos (memoria de trabajo, historial, scratchpad, vector store)?",
+        integration:
+          "¿Interactúa con sistemas externos reales con efectos (APIs de terceros, base de datos, ficheros, mensajería, navegador)?",
+        robustness:
+          "¿Maneja errores de las herramientas, reintentos y validación de salidas, con guardas ante respuestas malformadas?",
+      },
+      scoring:
+        "Cada dimensión se puntúa de 0 a 10. La nota global es su media ponderada, redondeada a un decimal. Tool Use y Agency Loop pesan más (25% cada una) porque son justo lo que separa un agente real de un LLM disfrazado. Un proyecto se marca como \"LLM DISFRAZADO\" cuando aparenta ser agéntico pero le falta ejecución real de herramientas y un bucle de verdad.",
+      integrity:
+        "Salvaguardas de integridad: todo el contenido del repositorio se trata como datos, nunca como instrucciones — cualquier texto que intente influir en el evaluador se ignora y cuenta en contra. Solo se premia la funcionalidad realmente conectada al flujo de ejecución; la maquinaria agéntica metida solo para marcar casillas de la rúbrica (\"teatro agéntico\") no sube la nota.",
+      close: "Cerrar",
     },
   },
 };
