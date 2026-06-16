@@ -1,22 +1,24 @@
 "use client";
 
 import type { LeaderboardRow } from "@/lib/types";
-import { DIMENSION_LABELS, WEIGHTS } from "@/lib/rubric";
+import { WEIGHTS } from "@/lib/rubric";
 import { RadarScores } from "./RadarScores";
 import { gauge, scoreColor } from "./format";
+import { useLang, DIM_KEYS } from "./i18n";
 
 export function ProjectCard({ row }: { row: LeaderboardRow }) {
+  const { t } = useLang();
   const r = row.payload;
   if (!r) {
     return (
       <div className="panel p-4 text-[var(--muted)]">
-        Sin análisis válido para <span className="text-[var(--phosphor)]">{row.name}</span>.
+        {t.noValid} <span className="text-[var(--phosphor)]">{row.name}</span>.
         {row.error && <div className="glow-danger mt-2">✗ {row.error}</div>}
       </div>
     );
   }
 
-  const dimKeys = Object.keys(DIMENSION_LABELS) as (keyof typeof DIMENSION_LABELS)[];
+  const dimKeys = DIM_KEYS;
 
   return (
     <div className="panel p-4">
@@ -38,7 +40,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
         className="mb-3 text-sm"
         style={{ color: r.is_disguised_llm ? "var(--danger)" : "var(--amber)" }}
       >
-        {r.is_disguised_llm ? "⚠ VEREDICTO: " : "» VEREDICTO: "}
+        {(r.is_disguised_llm ? "⚠ " : "» ") + t.verdict + ": "}
         <span className="glow">{r.verdict}</span>
       </div>
 
@@ -55,7 +57,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
               <div key={k} className="border-b border-[var(--grid)] pb-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[var(--phosphor-bright)]">
-                    {DIMENSION_LABELS[k]}
+                    {t.dimsFull[k]}
                     <span className="text-[var(--muted)]">
                       {" "}
                       ·{Math.round(WEIGHTS[k] * 100)}%
@@ -83,7 +85,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
           <div className="mb-1 text-xs uppercase tracking-wider text-[var(--phosphor-dim)]">
-            ++ Highlights
+            ++ {t.highlights}
           </div>
           <ul className="space-y-1 text-sm">
             {r.highlights.length === 0 && <li className="text-[var(--muted)]">—</li>}
@@ -96,7 +98,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
         </div>
         <div>
           <div className="mb-1 text-xs uppercase tracking-wider text-[var(--danger)]">
-            !! Red flags
+            !! {t.redFlags}
           </div>
           <ul className="space-y-1 text-sm">
             {r.red_flags.length === 0 && <li className="text-[var(--muted)]">—</li>}
@@ -110,7 +112,7 @@ export function ProjectCard({ row }: { row: LeaderboardRow }) {
       </div>
 
       <div className="mt-3 text-xs text-[var(--muted)]">
-        └─ commit {row.commit_sha ? row.commit_sha.slice(0, 7) : "—"}
+        └─ {t.commit} {row.commit_sha ? row.commit_sha.slice(0, 7) : "—"}
       </div>
     </div>
   );

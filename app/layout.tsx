@@ -15,7 +15,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "AGENTIC_BENCHMARK",
-  description: "Ranking de cuán agénticos son los proyectos del hackathon.",
+  description: "Ranking of how agentic the hackathon projects really are.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${vt323.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${vt323.variable} ${jetbrains.variable}`}>
       <body>
         <div className="crt">
           <div className="scanlines" aria-hidden />

@@ -2,6 +2,7 @@
 
 import type { LeaderboardRow } from "@/lib/types";
 import { gauge, scoreColor, rankBadge } from "./format";
+import { useLang } from "./i18n";
 
 export function Leaderboard({
   rows,
@@ -12,18 +13,19 @@ export function Leaderboard({
   selectedId: number | null;
   onSelect: (id: number) => void;
 }) {
+  const { t } = useLang();
   return (
     <div className="panel">
       <div className="border-b border-[var(--phosphor-dim)] px-4 py-2 text-[var(--phosphor-bright)] glow">
-        ╠══ RANKING AGÉNTICO ══╣
+        {t.rankingTitle}
       </div>
       <table className="w-full border-collapse">
         <thead>
           <tr className="text-left text-[var(--muted)] text-xs uppercase tracking-wider">
             <th className="px-4 py-2 font-normal">#</th>
-            <th className="px-2 py-2 font-normal">Proyecto / Equipo</th>
-            <th className="px-2 py-2 font-normal w-[40%]">Agentic score</th>
-            <th className="px-4 py-2 font-normal text-right">Nota</th>
+            <th className="px-2 py-2 font-normal">{t.colProject}</th>
+            <th className="px-2 py-2 font-normal w-[40%]">{t.colScore}</th>
+            <th className="px-4 py-2 font-normal text-right">{t.colNota}</th>
           </tr>
         </thead>
         <tbody>
@@ -55,7 +57,7 @@ export function Leaderboard({
                   <div className="text-xs text-[var(--muted)]">{r.team || "—"}</div>
                   {r.is_disguised_llm && (
                     <span className="mt-1 inline-block glow-danger text-xs">
-                      ⚠ LLM DISFRAZADO
+                      {t.disguised}
                     </span>
                   )}
                   {isErr && (
@@ -92,7 +94,7 @@ export function Leaderboard({
           {rows.length === 0 && (
             <tr>
               <td colSpan={4} className="px-4 py-8 text-center text-[var(--muted)]">
-                Sin datos todavía. Ejecuta el análisis: <span className="text-[var(--phosphor)]">npm run analyze</span>
+                {t.noData} <span className="text-[var(--phosphor)]">npm run analyze</span>
               </td>
             </tr>
           )}

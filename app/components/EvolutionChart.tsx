@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { fmtTime } from "./format";
+import { useLang } from "./i18n";
 
 export interface Series {
   name: string;
@@ -21,6 +22,7 @@ export interface Series {
 const COLORS = ["#33ff66", "#ffb000", "#7dffa0", "#46d0ff", "#ff2e4d", "#c08bff", "#e0ff4f"];
 
 export function EvolutionChart({ series }: { series: Series[] }) {
+  const { t } = useLang();
   // Une todos los puntos en un eje temporal común.
   const tsSet = new Set<number>();
   series.forEach((s) => s.points.forEach((p) => tsSet.add(p.ts)));
@@ -40,11 +42,11 @@ export function EvolutionChart({ series }: { series: Series[] }) {
   return (
     <div className="panel p-3">
       <div className="mb-2 text-[var(--phosphor-bright)] glow">
-        ╠══ EVOLUCIÓN · AGENTIC SCORE ══╣
+        {t.evolutionTitle}
       </div>
       {!hasData ? (
         <div className="py-10 text-center text-[var(--muted)]">
-          Aún no hay histórico. Se irá llenando con cada análisis.
+          {t.noHistory}
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={280}>

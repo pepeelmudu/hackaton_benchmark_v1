@@ -9,15 +9,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { AnalysisResult } from "@/lib/types";
-import { DIMENSION_LABELS } from "@/lib/rubric";
+import { useLang, DIM_KEYS } from "./i18n";
 
 export function RadarScores({ result }: { result: AnalysisResult }) {
-  const data = (Object.keys(DIMENSION_LABELS) as (keyof typeof DIMENSION_LABELS)[]).map(
-    (k) => ({
-      dim: DIMENSION_LABELS[k].split(" ")[0],
-      score: result.dimensions[k]?.score ?? 0,
-    }),
-  );
+  const { t } = useLang();
+  const data = DIM_KEYS.map((k) => ({
+    dim: t.dimsShort[k],
+    score: result.dimensions[k]?.score ?? 0,
+  }));
 
   return (
     <ResponsiveContainer width="100%" height={260}>
