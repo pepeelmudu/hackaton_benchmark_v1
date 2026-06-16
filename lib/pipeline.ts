@@ -17,45 +17,52 @@ export interface PipelineOptions {
   force?: boolean; // re-analiza aunque no haya commits nuevos
 }
 
-// Presupuesto de caracteres del digest. Calibrado para caber bajo el límite de
-// 10k tokens de entrada/min de la org (~3.5 chars/token + overhead del prompt).
-const DIGEST_BUDGET = 10_000;
-// Pausa entre repos. 45s porque el texto bilingüe gasta más tokens de salida
-// (límite 4k/min en Tier 1); el reintento ante 429 cubre los picos.
-const REPO_DELAY_MS = 45_000;
+// Presupuesto de caracteres del digest. Con el tier alto (580k tokens/min) los
+// tokens ya no son el cuello de botella, así que mandamos más código (mejor análisis).
+const DIGEST_BUDGET = 20_000;
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Cuántos repos analizar EN PARALELO. El tier permite ~1000 req/min y 580k
+// tokens/min, así que 8 concurrentes va de sobra y deja margen.
+const CONCURRENCY = 8;
+
+/** Ejecuta `fn` sobre `items` con un máximo de `limit` en paralelo. */
+async function mapPool<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const idx = next++;
+      await fn(items[idx], idx);
+    }
+  });
+  await Promise.all(workers);
+}
 
 /**
- * Ejecuta el ciclo completo para todos los repos de repos.txt.
+ * Ejecuta el ciclo completo para todos los repos de repos.txt, EN PARALELO.
  * Un fallo en un repo no detiene el resto (se guarda un snapshot con error).
  */
 export async function runPipeline(db: DB, opts: PipelineOptions = {}): Promise<void> {
   const text = fs.readFileSync(REPOS_FILE, "utf8");
   const projects = parseRepos(text);
-  console.log(`[pipeline] ${projects.length} proyectos a analizar`);
+  console.log(`[pipeline] ${projects.length} proyectos · concurrencia ${CONCURRENCY}`);
+  const started = Date.now();
 
-  let analyzed = 0;
-  for (const p of projects) {
+  await mapPool(projects, CONCURRENCY, async (p) => {
     const projectId = upsertProject(db, p);
     const label = `${p.owner}/${p.name} (${p.team})`;
     try {
-      console.log(`[pipeline] fetch ${label}`);
       const { dir, commitSha } = fetchRepo(p);
 
       if (!opts.force && lastCommitSha(db, projectId) === commitSha) {
         console.log(`[pipeline] sin cambios (${commitSha.slice(0, 7)}), salto ${label}`);
-        continue;
+        return;
       }
 
-      // Pausa entre análisis para respetar el límite por minuto de la API.
-      if (analyzed > 0) {
-        console.log(`[pipeline] esperando ${REPO_DELAY_MS / 1000}s (rate limit)…`);
-        await sleep(REPO_DELAY_MS);
-      }
-      analyzed++;
-
-      console.log(`[pipeline] pack + analyze ${label}`);
+      console.log(`[pipeline] analizando ${label}…`);
       const digest = packRepo(dir, DIGEST_BUDGET);
       const result = await analyze(digest, `${p.owner}/${p.name}`);
 
@@ -85,8 +92,9 @@ export async function runPipeline(db: DB, opts: PipelineOptions = {}): Promise<v
         error: msg,
       });
     }
-  }
-  console.log("[pipeline] terminado");
+  });
+
+  console.log(`[pipeline] terminado en ${Math.round((Date.now() - started) / 1000)}s`);
 }
 
 export function runPipelineStandalone(opts: PipelineOptions = {}) {
