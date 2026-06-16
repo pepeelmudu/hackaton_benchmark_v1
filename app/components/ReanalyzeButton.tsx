@@ -7,11 +7,22 @@ export function ReanalyzeButton({ onDone }: { onDone: () => void }) {
   const [msg, setMsg] = useState("");
 
   async function run() {
+    const pass = window.prompt("Contraseña para re-analizar:");
+    if (pass === null) return; // cancelado
     setState("running");
     setMsg("");
     try {
-      const res = await fetch("/api/reanalyze", { method: "POST" });
+      const res = await fetch("/api/reanalyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ pass }),
+      });
       const data = await res.json();
+      if (res.status === 401) {
+        setState("error");
+        setMsg("contraseña incorrecta");
+        return;
+      }
       if (!data.started) {
         setState("error");
         setMsg(data.reason ?? "No se pudo iniciar.");

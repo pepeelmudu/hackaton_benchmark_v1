@@ -9,3 +9,4 @@ https://github.com/0xAlik/agency - Al y Lucas
 https://github.com/charliereyes/household-purchasing-agent - Pei y Charlie
 https://github.com/Josema/pods - Enzo y Vaca
 https://github.com/zingersHQ/zingers - Al y Lucas
+https://github.com/elevenyellow/agent-control-plane - Chema y Perri
