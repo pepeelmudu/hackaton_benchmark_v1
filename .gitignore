@@ -1,0 +1,5 @@
+.env*
+workdir/
+*.sqlite
+node_modules/
+.next/

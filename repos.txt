@@ -1,0 +1,6 @@
+# Repos del hackathon a evaluar
+# Formato: <url> - <nombres del equipo>
+
+https://github.com/elevenyellow/cluedo - Leños y Jose Saez
+https://github.com/elevenyellow/ai-appraisal-agent - Agustin y Otto
+https://github.com/pepeelmudu/rol_hackaton_v1 - Lucas y Al
