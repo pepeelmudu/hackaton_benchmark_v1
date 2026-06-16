@@ -27,6 +27,7 @@ export function CriteriaButton() {
             role="dialog"
             aria-modal="true"
             className="panel w-full max-w-2xl p-5 text-left"
+            style={{ background: "#040604" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between border-b border-[var(--phosphor-dim)] pb-2">
