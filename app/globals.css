@@ -214,7 +214,7 @@ button:focus-visible,
   overflow: hidden;
   pointer-events: none;
   mix-blend-mode: difference;
-  opacity: 0.75;
+  opacity: 0.55;
 }
 .yt-bg iframe {
   position: absolute;
@@ -226,7 +226,7 @@ button:focus-visible,
   height: 56.25vw; /* 16:9 */
   min-height: 100vh;
   min-width: 177.78vh; /* cubre vertical */
-  filter: url(#pixelate-fire) saturate(1.2);
+  filter: url(#pixelate-fire) saturate(1.2) brightness(0.6);
   image-rendering: pixelated;
 }
 
