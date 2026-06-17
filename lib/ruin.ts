@@ -100,8 +100,7 @@ const RUIN_TOOL: Anthropic.Tool = {
   input_schema: {
     type: "object",
     properties: {
-      verdict: { ...loc, description: "Veredicto de una frase, con gracia (en/es)." },
-      estimate: { ...loc, description: "Estimación coloquial del gasto por ejecución, p.ej. '~$0.40/run, casi todo Opus'." },
+      // dimensions PRIMERO: las notas se generan antes de que nada pueda truncarse.
       dimensions: {
         type: "object",
         properties: {
@@ -110,10 +109,12 @@ const RUIN_TOOL: Anthropic.Tool = {
         },
         required: RUIN_KEYS,
       },
+      verdict: { ...loc, description: "Veredicto de una frase, con gracia (en/es)." },
+      estimate: { ...loc, description: "Estimación coloquial del gasto por ejecución, p.ej. '~$0.40/run, casi todo Opus'." },
       burners: { type: "array", items: loc, description: "Dónde más arde la pasta." },
       savers: { type: "array", items: loc, description: "Detalles frugales, si los hay." },
     },
-    required: ["verdict", "estimate", "dimensions", "burners", "savers"],
+    required: ["dimensions", "verdict", "estimate", "burners", "savers"],
   },
 };
 
@@ -130,7 +131,7 @@ export async function analyzeRuin(digest: string, projectName: string): Promise<
     try {
       const res = await client.messages.create({
         model,
-        max_tokens: 4500,
+        max_tokens: 6000,
         temperature: 0,
         tools: [RUIN_TOOL],
         tool_choice: { type: "tool", name: "submit_ruin" },
@@ -144,6 +145,11 @@ export async function analyzeRuin(digest: string, projectName: string): Promise<
       for (const k of RUIN_KEYS) {
         const d = input.dimensions?.[k] ?? {};
         dimensions[k] = { score: Math.max(0, Math.min(10, Number(d.score) || 0)), justification: toLoc(d.justification) };
+      }
+      // Guarda anti-cero: si TODAS las notas salen 0 es casi seguro un parse/truncado
+      // corrupto (un proyecto que hace llamadas a LLM nunca quema 0). Reintenta.
+      if (RUIN_KEYS.every((k) => dimensions[k].score === 0)) {
+        throw new Error("todas las dimensiones a 0 (datos corruptos), reintentando");
       }
       return {
         overall: computeRuin(dimensions),
