@@ -8,7 +8,7 @@ export function YoutubeBg() {
   const src =
     `https://www.youtube.com/embed/${VIDEO_ID}` +
     `?autoplay=1&mute=1&controls=0&loop=1&playlist=${VIDEO_ID}` +
-    `&playsinline=1&modestbranding=1&rel=0&showinfo=0&disablekb=1`;
+    `&playsinline=1&modestbranding=1&rel=0&showinfo=0&disablekb=1&iv_load_policy=3&fs=0`;
   return (
     <div className="yt-bg" aria-hidden>
       <iframe

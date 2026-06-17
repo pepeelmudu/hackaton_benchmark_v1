@@ -220,7 +220,8 @@ button:focus-visible,
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  /* scale 1.4 recorta la barra de título de YouTube (arriba) y los bordes */
+  transform: translate(-50%, -50%) scale(1.4);
   width: 100vw;
   height: 56.25vw; /* 16:9 */
   min-height: 100vh;
