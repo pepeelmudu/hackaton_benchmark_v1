@@ -34,6 +34,7 @@ function Ruin() {
   const [rows, setRows] = useState<RuinRow[]>([]);
   const [openId, setOpenId] = useState<number | null>(null);
   const [video, setVideo] = useState(true);
+  const [rerunMsg, setRerunMsg] = useState("");
 
   const load = useCallback(async () => {
     const res = await fetch("/api/ruin", { cache: "no-store" });
@@ -46,6 +47,27 @@ function Ruin() {
     const i = setInterval(load, 30_000);
     return () => clearInterval(i);
   }, [load]);
+
+  async function reRuin() {
+    const pass = window.prompt(lang === "es" ? "Contraseña para re-auditar:" : "Password to re-audit:");
+    if (pass === null) return;
+    setRerunMsg(lang === "es" ? "lanzando…" : "starting…");
+    try {
+      const res = await fetch("/api/reruin", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ pass }),
+      });
+      const data = await res.json();
+      if (res.status === 401) { setRerunMsg(lang === "es" ? "contraseña incorrecta" : "wrong password"); return; }
+      if (!data.started) { setRerunMsg(data.reason ?? "error"); return; }
+      setRerunMsg(lang === "es" ? "ardiendo… 🔥" : "burning… 🔥");
+      [8000, 20000, 40000, 70000].forEach((ms) => setTimeout(load, ms));
+      setTimeout(() => setRerunMsg(""), 70000);
+    } catch {
+      setRerunMsg(lang === "es" ? "fallo de red" : "network error");
+    }
+  }
 
   const scored = rows.filter((r) => !r.error && r.payload);
   const avg = scored.length
@@ -89,6 +111,13 @@ function Ruin() {
               >
                 {t.back}
               </Link>
+              <button
+                onClick={reRuin}
+                className="border border-[var(--fire1)] px-3 py-1 text-xs text-[var(--fire4)] transition-all hover:bg-[rgba(255,46,0,0.2)] hover:shadow-[0_0_14px_rgba(255,90,0,0.5)]"
+              >
+                🔥 RE-RUIN $$$
+                {rerunMsg && <span className="ml-2 text-[var(--ash)]">{rerunMsg}</span>}
+              </button>
             </div>
           </div>
         </header>
