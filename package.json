@@ -10,7 +10,8 @@
     "analyze": "tsx scripts/analyze.ts",
     "watch": "tsx scripts/watch.ts",
     "test": "vitest run",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "ruin": "tsx scripts/ruin.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

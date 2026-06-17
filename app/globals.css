@@ -129,3 +129,79 @@ button:focus-visible,
   outline: 2px solid var(--amber);
   outline-offset: 2px;
 }
+
+/* ── RUIN page: fuego + glitch ─────────────────────────────────────────── */
+.ruin {
+  --fire1: #ff2e00;
+  --fire2: #ff6a00;
+  --fire3: #ffb000;
+  --fire4: #ffe14a;
+  --ash: #7a5a3a;
+  background:
+    radial-gradient(120% 90% at 50% 100%, rgba(255, 90, 0, 0.12), transparent 55%),
+    #0a0604;
+  color: var(--fire3);
+}
+
+/* Título glitch: tres capas desplazadas en RGB */
+.glitch {
+  position: relative;
+  color: #fff3b0;
+  text-shadow: 0 0 10px rgba(255, 120, 0, 0.7);
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+}
+.glitch::before {
+  color: #ff2e4d;
+  z-index: -1;
+}
+.glitch::after {
+  color: #00e5ff;
+  z-index: -2;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .glitch::before { animation: glitch-a 2.4s infinite steps(2); }
+  .glitch::after { animation: glitch-b 3.1s infinite steps(2); }
+  .glitch { animation: glitch-skew 4s infinite; }
+}
+@keyframes glitch-a {
+  0%, 100% { transform: translate(0, 0); clip-path: inset(0 0 70% 0); }
+  20% { transform: translate(-3px, 1px); clip-path: inset(20% 0 40% 0); }
+  40% { transform: translate(3px, -1px); clip-path: inset(60% 0 10% 0); }
+  60% { transform: translate(-2px, 0); clip-path: inset(10% 0 60% 0); }
+}
+@keyframes glitch-b {
+  0%, 100% { transform: translate(0, 0); clip-path: inset(60% 0 10% 0); }
+  25% { transform: translate(3px, -2px); clip-path: inset(10% 0 70% 0); }
+  50% { transform: translate(-3px, 1px); clip-path: inset(40% 0 30% 0); }
+  75% { transform: translate(2px, 2px); clip-path: inset(70% 0 5% 0); }
+}
+@keyframes glitch-skew {
+  0%, 92%, 100% { transform: skewX(0deg); }
+  94% { transform: skewX(4deg); }
+  96% { transform: skewX(-3deg); }
+}
+
+/* Barra de llamas para el ranking RUIN */
+.flamebar {
+  background: linear-gradient(90deg, var(--fire1), var(--fire2) 45%, var(--fire3) 75%, var(--fire4));
+  box-shadow: 0 0 12px rgba(255, 90, 0, 0.6);
+}
+
+/* Flicker general de la página ruin */
+@media (prefers-reduced-motion: no-preference) {
+  .ruin-flicker { animation: ruinflicker 5s infinite steps(40); }
+}
+@keyframes ruinflicker {
+  0%, 97%, 100% { opacity: 1; }
+  98% { opacity: 0.82; }
+  99% { opacity: 0.93; }
+}

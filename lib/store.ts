@@ -35,8 +35,72 @@ export function openDb(dbPath: string = DEFAULT_PATH): DB {
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
     CREATE INDEX IF NOT EXISTS idx_snapshots_project_ts ON snapshots(project_id, ts);
+    CREATE TABLE IF NOT EXISTS ruin_snapshots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL,
+      ts INTEGER NOT NULL,
+      commit_sha TEXT NOT NULL,
+      overall REAL NOT NULL,
+      payload TEXT,
+      error TEXT,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_ruin_project_ts ON ruin_snapshots(project_id, ts);
   `);
   return db;
+}
+
+// ── RUIN (coste/derroche) ────────────────────────────────────────────────────
+export interface RuinRow extends Project {
+  ts: number;
+  commit_sha: string;
+  overall: number;
+  payload: any | null;
+  error: string | null;
+}
+
+export function insertRuin(
+  db: DB,
+  s: { project_id: number; ts: number; commit_sha: string; overall: number; payload: any | null; error?: string | null },
+): void {
+  db.prepare(
+    `INSERT INTO ruin_snapshots (project_id, ts, commit_sha, overall, payload, error)
+     VALUES (@project_id, @ts, @commit_sha, @overall, @payload, @error)`,
+  ).run({
+    project_id: s.project_id,
+    ts: s.ts,
+    commit_sha: s.commit_sha,
+    overall: s.overall,
+    payload: s.payload ? JSON.stringify(s.payload) : null,
+    error: s.error ?? null,
+  });
+}
+
+export function lastRuinCommit(db: DB, projectId: number): string | null {
+  const row = db
+    .prepare(`SELECT commit_sha FROM ruin_snapshots WHERE project_id=? AND error IS NULL ORDER BY ts DESC LIMIT 1`)
+    .get(projectId) as { commit_sha: string } | undefined;
+  return row?.commit_sha ?? null;
+}
+
+/** Ranking RUIN: última auditoría por proyecto, de más derroche a menos. */
+export function getRuinLeaderboard(db: DB): RuinRow[] {
+  const rows = db
+    .prepare(
+      `SELECT p.id, p.url, p.owner, p.name, p.team,
+              r.ts, r.commit_sha, r.overall, r.payload, r.error
+       FROM projects p
+       JOIN ruin_snapshots r ON r.id = (
+         SELECT id FROM ruin_snapshots WHERE project_id = p.id ORDER BY ts DESC LIMIT 1
+       )
+       ORDER BY r.error IS NOT NULL, r.overall DESC`,
+    )
+    .all() as any[];
+  return rows.map((r) => {
+    let payload = null;
+    try { payload = r.payload ? JSON.parse(r.payload) : null; } catch { payload = null; }
+    return { ...r, payload };
+  });
 }
 
 export function upsertProject(db: DB, p: Project): number {

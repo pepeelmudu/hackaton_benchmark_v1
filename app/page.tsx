@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import type { LeaderboardRow } from "@/lib/types";
 import { Leaderboard } from "./components/Leaderboard";
 import { ProjectCard } from "./components/ProjectCard";
@@ -54,7 +55,13 @@ function Dashboard() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 md:px-8">
       <header className="mb-6 border-b border-[var(--phosphor-dim)] pb-4">
-        <div className="mb-2 flex justify-end">
+        <div className="mb-2 flex items-center justify-end gap-2">
+          <Link
+            href="/ruin"
+            className="border border-[var(--danger)] px-3 py-1 text-xs text-[var(--amber)] transition-all hover:bg-[rgba(255,90,0,0.15)] hover:shadow-[0_0_14px_rgba(255,90,0,0.4)]"
+          >
+            🔥 RUIN $$$
+          </Link>
           <LangToggle />
         </div>
         <div className="flex flex-wrap items-end justify-between gap-3">
