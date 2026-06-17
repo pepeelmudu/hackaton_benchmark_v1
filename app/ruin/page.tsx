@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { LanguageProvider, LangToggle, useLang, loc } from "../components/i18n";
 import { RUIN_KEYS, RUIN_LABELS, RUIN_WEIGHTS } from "@/lib/ruin";
-import { DoomFire } from "./DoomFire";
 import { YoutubeBg } from "./YoutubeBg";
 
 interface RuinRow {
@@ -63,10 +62,7 @@ function Ruin() {
       <div className="mx-auto max-w-6xl">
         {/* Header con fuego */}
         <header className="relative mb-6 overflow-hidden border-b border-[var(--fire2)] pb-4">
-          <div className="absolute inset-x-0 top-0 -z-0 h-40">
-            <DoomFire />
-          </div>
-          <div className="relative z-10 flex items-start justify-between gap-3 pt-6">
+          <div className="relative z-10 flex items-start justify-between gap-3 pt-2">
             <div>
               <h1
                 className="glitch display text-5xl md:text-7xl"

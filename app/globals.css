@@ -226,6 +226,8 @@ button:focus-visible,
   height: 56.25vw; /* 16:9 */
   min-height: 100vh;
   min-width: 177.78vh; /* cubre vertical */
+  filter: url(#pixelate-fire) saturate(1.2);
+  image-rendering: pixelated;
 }
 
 /* RUIN = todo rojo: nada de verde fósforo en esta página */
