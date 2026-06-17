@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LanguageProvider, LangToggle, useLang, loc } from "../components/i18n";
 import { RUIN_KEYS, RUIN_LABELS, RUIN_WEIGHTS } from "@/lib/ruin";
 import { DoomFire } from "./DoomFire";
+import { YoutubeBg } from "./YoutubeBg";
 
 interface RuinRow {
   id: number;
@@ -33,6 +34,7 @@ function Ruin() {
   const { lang } = useLang();
   const [rows, setRows] = useState<RuinRow[]>([]);
   const [openId, setOpenId] = useState<number | null>(null);
+  const [video, setVideo] = useState(true);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/ruin", { cache: "no-store" });
@@ -57,6 +59,7 @@ function Ruin() {
 
   return (
     <main className="ruin ruin-flicker min-h-screen px-4 py-6 md:px-8">
+      {video && <YoutubeBg />}
       <div className="mx-auto max-w-6xl">
         {/* Header con fuego */}
         <header className="relative mb-6 overflow-hidden border-b border-[var(--fire2)] pb-4">
@@ -74,7 +77,16 @@ function Ruin() {
               <p className="mt-1 text-sm text-[var(--fire3)] opacity-80">{t.sub}</p>
             </div>
             <div className="flex flex-col items-end gap-2">
-              <LangToggle />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setVideo((v) => !v)}
+                  aria-label="toggle video"
+                  className={`border px-2 py-1 text-xs transition-colors ${video ? "border-[var(--fire1)] text-[var(--fire4)]" : "border-[var(--ash)] text-[var(--ash)]"}`}
+                >
+                  🎬 FX
+                </button>
+                <LangToggle />
+              </div>
               <Link
                 href="/"
                 className="border border-[var(--fire2)] px-3 py-1 text-xs text-[var(--fire3)] transition-colors hover:bg-[rgba(255,90,0,0.15)]"

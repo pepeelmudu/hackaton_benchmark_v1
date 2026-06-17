@@ -205,3 +205,42 @@ button:focus-visible,
   98% { opacity: 0.82; }
   99% { opacity: 0.93; }
 }
+
+/* Vídeo de fondo a pantalla completa (cover) en modo diferencia */
+.yt-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0.75;
+}
+.yt-bg iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 56.25vw; /* 16:9 */
+  min-height: 100vh;
+  min-width: 177.78vh; /* cubre vertical */
+}
+
+/* RUIN = todo rojo: nada de verde fósforo en esta página */
+.ruin [aria-label="Toggle language"] {
+  color: var(--fire3) !important;
+  border-color: var(--fire2) !important;
+}
+.ruin ::selection {
+  background: var(--fire1);
+  color: #000;
+}
+.ruin ::-webkit-scrollbar-thumb {
+  background: var(--fire2);
+  border: 2px solid #0a0604;
+}
+.ruin button:focus-visible,
+.ruin [tabindex]:focus-visible {
+  outline-color: var(--fire1);
+}
