@@ -70,16 +70,10 @@ function Ruin() {
   }
 
   const scored = rows.filter((r) => !r.error && r.payload);
-  // Coste por run: el número real de Claude (usdPerRun) o, si no hay, derivado de la nota.
-  const costOf = (r: RuinRow) =>
-    typeof r.payload?.usdPerRun === "number" && r.payload.usdPerRun > 0
-      ? r.payload.usdPerRun
-      : r.overall * 0.07;
-  const totalCost = scored.reduce((a, r) => a + costOf(r), 0);
   const isDemo = scored.some((r) => /demo/i.test(r.payload?.verdict?.en ?? ""));
   const t = lang === "es"
-    ? { sub: "¿Quién incinera más tokens y $$$?", back: "← AGENTIC", board: "╠══ INCINERADORES ══╣", total: "COSTE TOTAL EST.", perRun: "/run (combinado)", demo: "⚠ DATOS DEMO — ejecuta `npm run ruin` con saldo para los reales", empty: "Sin datos. Ejecuta: npm run ruin" }
-    : { sub: "Who incinerates the most tokens and $$$?", back: "← AGENTIC", board: "╠══ BIGGEST BURNERS ══╣", total: "EST. TOTAL COST", perRun: "/run (combined)", demo: "⚠ DEMO DATA — run `npm run ruin` with credits for real values", empty: "No data. Run: npm run ruin" };
+    ? { sub: "¿Quién incinera más tokens y $$$?", back: "← AGENTIC", board: "╠══ INCINERADORES ══╣", demo: "⚠ DATOS DEMO — ejecuta `npm run ruin` con saldo para los reales", empty: "Sin datos. Ejecuta: npm run ruin" }
+    : { sub: "Who incinerates the most tokens and $$$?", back: "← AGENTIC", board: "╠══ BIGGEST BURNERS ══╣", demo: "⚠ DEMO DATA — run `npm run ruin` with credits for real values", empty: "No data. Run: npm run ruin" };
 
   return (
     <main className="ruin ruin-flicker min-h-screen px-4 py-6 md:px-8">
@@ -131,19 +125,6 @@ function Ruin() {
           </div>
         )}
 
-        {/* Coste total estimado */}
-        <div className="mb-6 flex items-end gap-3 border border-[var(--fire2)] bg-black/40 p-4">
-          <div className="text-xs uppercase tracking-widest text-[var(--ash)]">{t.total}</div>
-          <div
-            className="glitch display text-5xl"
-            data-text={`$${totalCost.toFixed(2)}`}
-            style={{ color: "var(--fire4)" }}
-          >
-            ${totalCost.toFixed(2)}
-          </div>
-          <div className="pb-1 text-sm text-[var(--ash)]">{t.perRun}</div>
-          <div className="pb-1 text-2xl">🔥🔥🔥</div>
-        </div>
 
         {/* Ranking */}
         <div className="border border-[var(--fire2)] bg-black/40">
