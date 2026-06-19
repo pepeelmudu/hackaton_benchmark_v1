@@ -3,6 +3,19 @@
 Evalúa cuán **agénticos** son los proyectos del hackathon (0–10) y los rankea en un
 dashboard estilo BBS/terminal. Detecta el patrón "**LLM disfrazado de agente**".
 
+## Contexto y por qué funcionó
+
+Nació en un **hackathon interno** cuya temática era construir aplicaciones **agénticas**.
+Como ya teníamos varios proyectos en marcha, montamos este benchmark para responder a una
+pregunta concreta: **¿cuáles son agentes de verdad y cuáles un LLM disfrazado?**
+
+Pero la conclusión más interesante fue un **efecto secundario inesperado**: el benchmark
+**encendió la competición**. La gente empezó a picarse por subir en el ranking y, sobre todo,
+a usar el **feedback del propio benchmark** —que es muy concreto y bueno— para detectar **qué
+fallaba en sus proyectos** y arreglarlo. Con la excusa de escalar posiciones, los equipos
+**trabajaron más a fondo y siguieron mejorando hasta el último minuto** antes de la
+presentación. Acabó siendo una **herramienta de motivación brutal**, no solo de medición.
+
 ## Cómo funciona
 
 1. `repos.txt` lista los repos a evaluar (`url - equipo`).
