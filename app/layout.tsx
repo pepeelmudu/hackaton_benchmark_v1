@@ -14,7 +14,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AGENTIC_BENCHMARK",
+  title: "BENCH_PIZZA",
   description: "Ranking of how agentic the hackathon projects really are.",
 };
 

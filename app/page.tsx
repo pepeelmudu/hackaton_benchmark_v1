@@ -67,7 +67,7 @@ function Dashboard() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="display text-5xl md:text-6xl text-[var(--phosphor-bright)]">
-              <span className="cursor">&gt; AGENTIC_BENCHMARK</span>
+              <span className="cursor">&gt; BENCH_PIZZA</span>
             </h1>
             <p className="mt-1 text-sm text-[var(--muted)]">{t.subtitle}</p>
           </div>
